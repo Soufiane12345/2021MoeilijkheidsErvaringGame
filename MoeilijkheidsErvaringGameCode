@@ -1,0 +1,469 @@
+import arcade
+import random
+import os
+import winsound
+from arcade import key
+
+#De breedte, hoogte, titel aangeven, de snelheid (pixels/s)van de bal aangeven en achtergrondmuziek instellen.
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 600
+SCREEN_TITLE = "Build It"
+BALL_SPEED = 10
+winsound.PlaySound("Music.mp3", winsound.SND_ASYNC)
+
+# De class van de main menu
+class MenuView(arcade.View):
+    def on_show(self):
+        # de achtergrondkleur van het menu blauw gemaakt 
+        arcade.set_background_color(arcade.color.BLUE)
+
+    def on_draw(self):
+        arcade.start_render()
+        #Hier staat de tekst van het menu
+        arcade.draw_text("Build It", SCREEN_WIDTH/2, SCREEN_HEIGHT/2, arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text("Klik om te spelen", SCREEN_WIDTH/2, 225, arcade.color.GRAY, font_size=20, anchor_x="center")
+        
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        # Bij klikken, naar de game gaan
+        game_view = MyGame()
+        game_view.setup()
+        self.window.show_view(game_view)
+
+# De class van de muren(rooms)
+class Room():
+    def __init__(self, x, y, w, h, color):
+        # Variabelen aangeven
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.color = color
+
+    def setup(self):
+        pass
+    
+    def on_draw(self):
+        # Hoe de muren getekend moeten worden
+        arcade.draw_rectangle_filled(self.x, self.y, self.w, self.h, self.color)
+
+    def on_update(self, delta_time):
+        pass
+
+# De class van de speler
+class Player():
+    def __init__(self, x, y, r, speed_x, speed_y, color):
+        # De variabelen van de speler
+        self.x = x
+        self.y = y
+        self.r = r
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+        self.color = color
+
+    def setup(self):
+        pass
+
+    def on_draw(self):
+        # Hoe de speler getekend moet worden
+        arcade.draw_circle_filled(self.x, self.y, self.r, self.color)
+
+    def on_update(self, delta_time): 
+        # Als de speler de uiteinde van de map haalt, moet het de andere kant weer op (en zo maar door)
+        if self.x + self.r >= SCREEN_WIDTH:
+            self.x = SCREEN_WIDTH-self.r
+            self.y = self.y-45
+
+        if self.x - self.r <= 0:
+            self.x = 0+self.r
+            self.y = self.y+45
+
+        if self.y + self.r >= 540:
+            self.y = 540-self.r
+            self.x = self.x+45
+            
+        if self.y - self.r <= 42:
+            self.y = 42+self.r
+            self.x = self.x-45
+
+    def on_key_press(self, key, key_moddifiers):
+        pass
+
+# Class van de bal
+class Ball():
+    def __init__(self, x, y, r, speed_x, speed_y, color):
+        # De variabelen van de bal 
+        self.x = x
+        self.y = y
+        self.r = r
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+
+    def setup(self):
+      pass
+
+    def on_draw(self):
+        # Hoe de bal getekend moet worden
+        arcade.draw_circle_filled(self.x, self.y, self.r, arcade.color.BLUE)
+
+    def on_update(self, delta_time, room_1, room_2, room_3, room_4, room_5, room_6, room_7, room_8, room_9, room_10, room_11, room_12, room_13, room_14, room_15, room_16, room_17, room_18): 
+        # De bal moet rond blijven gaan
+        self.x = self.x + self.speed_x 
+        self.y = self.y + self.speed_y
+        
+        # Als de bal tegen een muur aankomt, moet de muur uit de map worden gehaald
+        if self.y + self.r >= room_1.y-room_1.h and self.x in range(50, 150):
+            self.speed_y = self.speed_y*-1 
+            room_1.y= 1000
+
+        if self.y + self.r >= room_2.y-room_2.h and self.x in range(150, 250):
+            self.speed_y = self.speed_y*-1
+            room_2.y = 1000 
+
+        if self.y + self.r >= room_3.y-room_3.h and self.x in range(250, 350):
+            self.speed_y = self.speed_y*-1
+            room_3.y = 1000  
+
+        if self.y + self.r >= room_4.y-room_4.h and self.x in range(350, 450):
+            self.speed_y = self.speed_y*-1 
+            room_4.y = 1000 
+
+        if self.y + self.r >= room_5.y-room_5.h and self.x in range(450, 550):
+            self.speed_y = self.speed_y*-1 
+            room_5.y = 1000
+
+        if self.x + self.r > room_6.x-(room_6.w/2) and (room_6.y+room_6.h/2) > self.y and (room_6.y-room_6.h/2) < self.y:
+            self.speed_x *= -1 
+            room_6.x = 1000
+
+        if self.x + self.r > room_7.x-(room_7.w/2) and (room_7.y+room_7.h/2) > self.y and (room_7.y-room_7.h/2) < self.y:
+            self.speed_x *= -1
+            room_7.x = 1000
+
+        if self.x + self.r > room_8.x-(room_8.w/2) and (room_8.y+room_8.h/2) > self.y and (room_8.y-room_8.h/2) < self.y:
+            self.speed_x *= -1
+            room_8.x = 1000
+
+        if self.x + self.r > room_9.x-(room_9.w/2) and (room_9.y+room_9.h/2) > self.y and (room_9.y-room_9.h/2) < self.y:
+            self.speed_x *= -1
+            room_9.x = 1000
+
+        if self.y - self.r <= room_10.y+room_10.h and self.x in range(450, 550):
+            self.speed_y = self.speed_y*-1  
+            room_10.y = -1000
+
+        if self.y - self.r <= room_11.y+room_11.h and self.x in range(350, 450):
+            self.speed_y = self.speed_y*-1  
+            room_11.y = -1000
+
+        if self.y - self.r <= room_12.y+room_12.h and self.x in range(250, 350):
+            self.speed_y = self.speed_y*-1 
+            room_12.y= -1000
+
+        if self.y - self.r <= room_13.y+room_13.h and self.x in range(150, 250):
+            self.speed_y = self.speed_y*-1 
+            room_13.y = -1000
+        
+        if self.y - self.r <= room_14.y+room_14.h and self.x in range(50, 150):
+            self.speed_y = self.speed_y*-1 
+            room_14.y = -1000
+
+        if self.x < room_15.x+(room_15.w/2) and (room_15.y+room_15.h/2) > self.y and (room_15.y-room_15.h/2) < self.y:
+            self.speed_x *= -1 
+            room_15.x = -1000
+        
+        if self.x < room_16.x+(room_16.w/2) and (room_16.y+room_16.h/2) > self.y and (room_16.y-room_16.h/2) < self.y:
+            self.speed_x *= -1 
+            room_16.x = -1000
+
+        if self.x < room_17.x+(room_17.w/2) and (room_17.y+room_17.h/2) > self.y and (room_17.y-room_17.h/2) < self.y:
+            self.speed_x *= -1 
+            room_17.x = -1000
+
+        if self.x < room_18.x+(room_18.w/2) and (room_18.y+room_18.h/2) > self.y and (room_18.y-room_18.h/2) < self.y:
+            self.speed_x *= -1 
+            room_18.x = -1000
+
+# De class van het scorebord 
+class Scoreboard():
+    def __init__(self, x, y):
+        # De variabelen van het scoreboard
+        self.value = 0
+        self.x = x
+        self.y = y
+    
+    def draw(self):
+        # Dit moet er getekend worden in beeld
+        arcade.draw_text(f"Score:{self.value}p", self.x, self.y, arcade.color.BROWN)
+
+    def setup(self):
+        # Je begint met de score 0
+        self.value = 0
+
+    def on_update(self, delta_time):
+        pass
+
+# De class van de bal bij revive
+class LostPlayer():
+    def __init__(self, x, y, r, color):
+        # De variabelen van de bal
+        self.x = x
+        self.y = y
+        self.r = r
+        self.color = color
+
+    def on_draw(self):
+        # Hoe de bal moet worden getekend
+        arcade.draw_circle_filled(self.x, self.y, self.r, self.color)
+    
+    def on_update(self, delta_time):
+        pass
+
+# De class van het rode gebied in de revive window
+class Area():
+    def __init__(self, x, y, w, h, color):
+        # De variabelen van het rode gebied
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.color = color
+
+    def on_draw(self):
+        # Hoe het gebied getekend moet worden
+        arcade.draw_rectangle_filled(self.x, self.y, self.w, self.h, self.color)
+
+# De class van de Game Over window            
+class GameOver(arcade.View):
+    def on_show(self):
+        # Achtergrond instellen
+        arcade.set_background_color(arcade.color.YELLOW)
+
+    def on_draw(self):
+        # Dit moet er getekend worden
+        arcade.start_render()
+        arcade.draw_text("Game Over", SCREEN_WIDTH/2, SCREEN_HEIGHT/2, arcade.color.BLACK, font_size=30, anchor_x="center")
+        arcade.draw_text("Klik om opnieuw te spelen", SCREEN_WIDTH/2, 100, arcade.color.BLACK, font_size=20, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        # Bij het klikken, een nieuwe game
+        game_view = MyGame()
+        game_view.setup()
+        self.window.show_view(game_view)
+
+# De class van de game
+class MyGame(arcade.View):
+    def __init__(self):
+        super().__init__()
+        # De achtergrondkleur instellen
+        arcade.set_background_color(arcade.color.AMAZON)
+        
+        self.score = None
+        self.score_text = None
+
+        # Hier worden de speler en de bal geschreven
+        self.Speler = Player(10, SCREEN_HEIGHT/2, 18, 0, 0, arcade.color.BROWN)
+        self.ball = Ball(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 15, BALL_SPEED, BALL_SPEED, arcade.color.BLUE)
+        
+    def setup(self):
+        # Hieronder worden de muren en het scoreboard klaargezet en geschreven
+        self.score = Scoreboard(500, 550)
+        self.room_1 = Room(100, 500, 100, 15, arcade.color.RED) 
+        self.room_2 = Room(200, 500, 100, 15, arcade.color.YELLOW)
+        self.room_3 = Room(300, 500, 100, 15, arcade.color.BLUE)
+        self.room_4 = Room(400, 500, 100, 15, arcade.color.PURPLE)
+        self.room_5 = Room(500, 500, 100, 15, arcade.color.GREEN)
+        self.room_6 = Room(558, 442, 15, 100, arcade.color.RED)
+        self.room_7 = Room(558, 342, 15, 100, arcade.color.YELLOW)
+        self.room_8 = Room(558, 242, 15, 100, arcade.color.BLUE)
+        self.room_9 = Room(558, 142, 15, 100, arcade.color.PURPLE)
+        self.room_10 = Room(500, 85, 100, 15, arcade.color.GREEN)
+        self.room_11 = Room(400, 85, 100, 15, arcade.color.RED)
+        self.room_12 = Room(300, 85, 100, 15, arcade.color.YELLOW)
+        self.room_13 = Room(200, 85, 100, 15, arcade.color.BLUE)
+        self.room_14 = Room(100, 85, 100, 15, arcade.color.PURPLE)
+        self.room_15 = Room(42, 142, 15, 100, arcade.color.GREEN)
+        self.room_16 = Room(42, 242, 15, 100, arcade.color.RED)
+        self.room_17 = Room(42, 342, 15, 100, arcade.color.YELLOW)
+        self.room_18 = Room(42, 442, 15, 100, arcade.color.BLUE)
+
+    def on_draw(self):
+        # Alle onderdelen worden geschreven
+        arcade.start_render()
+        self.Speler.on_draw()
+        self.score.draw()
+        self.ball.on_draw()
+        self.room_1.on_draw()
+        self.room_2.on_draw()
+        self.room_3.on_draw()
+        self.room_4.on_draw()
+        self.room_5.on_draw()
+        self.room_6.on_draw()
+        self.room_7.on_draw()
+        self.room_8.on_draw()
+        self.room_9.on_draw()
+        self.room_10.on_draw()
+        self.room_11.on_draw()
+        self.room_12.on_draw()
+        self.room_13.on_draw()
+        self.room_14.on_draw()
+        self.room_15.on_draw()
+        self.room_16.on_draw()
+        self.room_17.on_draw()
+        self.room_18.on_draw()
+
+    def on_update(self, delta_time):
+        # Wat er moet veranderen in de game (in loop der tijd)
+        self.Speler.on_update(delta_time)
+        self.ball.on_update(delta_time, self.room_1, self.room_2, self.room_3, self.room_4, self.room_5, self.room_6, self.room_7, self.room_8, self.room_9, self.room_10, self.room_11, self.room_12, self.room_13, self.room_14, self.room_15, self.room_16, self.room_17, self.room_18)
+        revive = ReviveView(self)
+        # Als de bal achter een muur komt, opent de revive menu, wordt de bal in het midden gezet
+        if self.ball.y <= 70:
+            self.window.show_view(revive)
+            self.ball.x = 300
+            self.ball.y = 300
+            self.score.value = self.score.value*0.5
+        if self.ball.y >= 515:
+            self.window.show_view(revive)
+            self.ball.x = 300
+            self.ball.y = 300
+            self.score.value = self.score.value*0.5
+        if self.ball.x <= 27:
+            self.window.show_view(revive)
+            self.ball.x = 300
+            self.ball.y = 300
+            self.score.value = self.score.value*0.5
+        if self.ball.x >= 600:
+            self.window.show_view(revive)
+            self.ball.x = 300
+            self.ball.y = 300
+            self.score.value = self.score.value*0.5 
+
+    def on_show(self):
+        pass
+
+    # De besturing instellen, na het klikken van spatie en naast de kapotte muur staan, wordt de muur gerepareerd 
+    def on_key_press(self, key, key_modifiers):
+        menu_view = MenuView()
+        if self.Speler.x in range(50, 150) and key == arcade.key.SPACE and self.Speler.y >= 500 and self.room_1.y == 1000:
+            self.room_1.y = 500 
+            self.score.value +=10 
+        
+        if key == arcade.key.SPACE and self.Speler.x in range(150, 250) and self.Speler.y >= 500 and self.room_2.y == 1000:
+            self.room_2.y = 500
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.x in range(250, 350) and self.Speler.y >= 500 and self.room_3.y == 1000:
+            self.room_3.y = 500
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.x in range(350, 450) and self.Speler.y >= 500 and self.room_4.y == 1000:
+            self.room_4.y = 500
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.x in range(450, 550) and self.Speler.y >= 500 and self.room_5.y == 1000:
+            self.room_5.y = 500
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.y in range(342, 542) and self.Speler.x >= 558 and self.room_6.x == 1000:
+            self.room_6.x = 558
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.y in range(242, 442) and self.Speler.x >= 558 and self.room_7.x == 1000:
+            self.room_7.x = 558
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.y in range(142, 342) and self.Speler.x >= 558 and self.room_8.x == 1000:
+            self.room_8.x = 558
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.y in range(42, 242) and self.Speler.x >= 558 and self.room_9.x == 1000:
+            self.room_9.x = 558
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.x in range(450, 550) and self.Speler.y <= 85 and self.room_10.y == -1000:
+            self.room_10.y = 85
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.x in range(350, 450) and self.Speler.y <= 85 and self.room_11.y == -1000:
+            self.room_11.y = 85
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.x in range(250, 350) and self.Speler.y <= 85 and self.room_12.y == -1000:
+            self.room_12.y = 85
+            self.score.value +=10
+     
+        if key == arcade.key.SPACE and self.Speler.x in range(150, 250) and self.Speler.y <=85 and self.room_13.y == -1000:
+            self.room_13.y = 85
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.x in range(50, 150) and self.Speler.y <=85 and self.room_14.y == -1000:
+            self.room_14.y = 85
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.y in range(42, 242) and self.Speler.x <=42 and self.room_15.x == -1000:
+            self.room_15.x = 42
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.y in range(142, 342) and self.Speler.x <=42 and self.room_16.x == -1000:
+            self.room_16.x = 42
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.y in range(242, 442) and self.Speler.x <=42 and self.room_17.x == -1000:
+            self.room_17.x = 42
+            self.score.value +=10
+
+        if key == arcade.key.SPACE and self.Speler.y in range (442, 542) and self.Speler.x <=42 and self.room_18.x == -1000:
+            self.room_18.x = 42
+            self.score.value +=10
+
+# De class van de revive window
+class ReviveView(arcade.View):
+    def __init__(self, game_view):
+        super().__init__()
+        self.game_view = game_view
+        self.total_time = 2
+         # De bal wordt geschreven
+        self.lost_player = LostPlayer(20, 20, 15, arcade.color.BROWN)
+        # Het rode gebied wordt geschreven
+        self.area = Area(300, 550, 600, 100, arcade.color.RED)
+
+    def setup(self):
+        # Tijd en achtergrondkleur worden klaargezet
+        self.total_time = 2
+        arcade.set_background_color(arcade.color.RED)
+    
+    def on_draw(self):
+        # Tekst, timer, de bal en het gebied worden geschreven
+        arcade.start_render()
+        arcade.draw_text("Revive", SCREEN_WIDTH/2, 500, arcade.color.WHITE, font_size=30, anchor_x="center")
+        arcade.draw_text("Breng de bal naar het rode gebied!", SCREEN_WIDTH/2, 450, arcade.color.WHITE, font_size=20, anchor_x="center")
+        seconds = int(self.total_time) % 10
+        output = f"Time:{seconds:01d}"
+        arcade.draw_text(output, 300, 200, arcade.color.PURPLE, 30)
+        self.lost_player.on_draw()
+        self.area.on_draw()
+
+    def on_update(self, delta_time):
+        # De timer loopt af, bij een tijd kleiner dan 0 seconden, wordt de game over window geopend
+        self.total_time -= delta_time
+        game_over = GameOver()
+        if self.total_time <=0:
+            self.window.show_view(game_over)
+        
+        # Als de bal in het rode gebied zit, wordt de game weer geopend
+        if self.lost_player.y >= 550:
+            self.window.show_view(self.game_view)
+
+    def on_mouse_motion(self, x, y, dx, dy):
+        # De bal beweegt met de muis mee
+        self.lost_player.x = x
+        self.lost_player.y = y
+
+def main():
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, "Build It")
+    menu_view = MenuView()
+    window.show_view(menu_view)
+    arcade.run()
+
+if __name__ == "__main__":
+    main()
